@@ -1,0 +1,33 @@
+# Gradle
+.gradle/
+build/
+out/
+
+# IntelliJ IDEA
+.idea/
+*.iml
+*.ipr
+*.iws
+
+# Eclipse
+.classpath
+.project
+.settings/
+bin/
+
+# VS Code
+.vscode/
+
+# Development run directories
+run/
+run-data/
+logs/
+crash-reports/
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# JVM crash dumps
+*.hprof

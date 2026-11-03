@@ -1,0 +1,39 @@
+{
+  "enchantlist.header": "可用附魔（共 %s 种）：",
+  "enchantlist.header.filtered": "适用于 %s 的附魔（共 %s 种）：",
+  "enchantlist.none": "手持的 %s 没有可用的附魔。",
+  "enchantlist.no_held": "请先将物品拿在主手，再使用 -a。",
+  "enchantlist.levels": "等级 %s-%s",
+  "enchantlist.items.label": "适用：",
+  "enchantlist.items.more": " 等另 %s 项",
+  "enchantlist.hover.id": "ID：%s",
+  "enchantlist.hover.levels": "支持等级：%s - %s",
+  "enchantlist.hover.items": "适用物品（共 %s 项）：",
+  "enchantlist.hover.more": " ……另有 %s 项",
+  "enchantlist.hover.click": "点击可将 %s 命令填入聊天框",
+
+  "enchantlist.help.title": "附魔列表命令用法：",
+  "enchantlist.help.all": "/enchantlist [页码] — 列出全部附魔",
+  "enchantlist.help.applicable": "/enchantlist -a [页码] — 只列出主手物品可用的附魔",
+  "enchantlist.help.tip": "/enchantlist help — 显示本说明。每页 %s 项；点击条目填入命令，点击底部按钮翻页。",
+
+  "effectlist.header": "可用药水效果（共 %s 种）：",
+  "effectlist.levels": "等级 %s-%s",
+  "effectlist.hover.levels": "可用等级：%s - %s",
+  "effectlist.category.beneficial": "增益",
+  "effectlist.category.harmful": "减益",
+  "effectlist.category.neutral": "中性",
+  "effectlist.instant": "瞬间",
+  "effectlist.hover.id": "ID：%s",
+  "effectlist.hover.category": "类别：%s",
+  "effectlist.hover.click": "点击可将 /effect 命令填入聊天框",
+
+  "effectlist.help.title": "药水效果列表命令用法：",
+  "effectlist.help.all": "/effectlist [页码] — 列出全部药水效果",
+  "effectlist.help.tip": "/effectlist help — 显示本说明。每页 %s 项；点击条目填入命令，点击底部按钮翻页。",
+
+  "pagination.prev": "« 上一页",
+  "pagination.next": "下一页 »",
+  "pagination.page": "第 %s/%s 页",
+  "pagination.hover": "点击执行 %s"
+}

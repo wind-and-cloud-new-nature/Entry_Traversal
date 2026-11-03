@@ -1,0 +1,39 @@
+{
+  "enchantlist.header": "Available enchantments: %s",
+  "enchantlist.header.filtered": "Available enchantments for %s (%s):",
+  "enchantlist.none": "No enchantments can be applied to %s.",
+  "enchantlist.no_held": "Hold an item in your main hand to use -a.",
+  "enchantlist.levels": "Lv.%s-%s",
+  "enchantlist.items.label": "items: ",
+  "enchantlist.items.more": " (+%s more)",
+  "enchantlist.hover.id": "ID: %s",
+  "enchantlist.hover.levels": "Levels: %s - %s",
+  "enchantlist.hover.items": "Applicable items (%s):",
+  "enchantlist.hover.more": " ... and %s more",
+  "enchantlist.hover.click": "Click to put the %s command into the chat box",
+
+  "enchantlist.help.title": "Enchantment list usage:",
+  "enchantlist.help.all": "/enchantlist [page] - list every enchantment",
+  "enchantlist.help.applicable": "/enchantlist -a [page] - list enchantments the held item accepts",
+  "enchantlist.help.tip": "/enchantlist help - show this help. %s entries per page; click an entry to fill the command, click the footer to page.",
+
+  "effectlist.header": "Available potion effects: %s",
+  "effectlist.levels": "Lv.%s-%s",
+  "effectlist.hover.levels": "Levels: %s - %s",
+  "effectlist.category.beneficial": "Beneficial",
+  "effectlist.category.harmful": "Harmful",
+  "effectlist.category.neutral": "Neutral",
+  "effectlist.instant": "Instant",
+  "effectlist.hover.id": "ID: %s",
+  "effectlist.hover.category": "Category: %s",
+  "effectlist.hover.click": "Click to put /effect into the chat box",
+
+  "effectlist.help.title": "Potion effect list usage:",
+  "effectlist.help.all": "/effectlist [page] - list every potion effect",
+  "effectlist.help.tip": "/effectlist help - show this help. %s entries per page; click an entry to fill the command, click the footer to page.",
+
+  "pagination.prev": "« Prev",
+  "pagination.next": "Next »",
+  "pagination.page": "Page %s/%s",
+  "pagination.hover": "Click to run %s"
+}
