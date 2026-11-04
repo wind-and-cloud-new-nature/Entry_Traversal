@@ -1,5 +1,7 @@
 package org.example_1.entry_traversal;
 
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.context.CommandContext;
@@ -27,11 +29,15 @@ import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.registries.ForgeRegistries;
 
+import java.io.Reader;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Chat helper commands for looking up enchantments and potion effects:
@@ -57,6 +63,31 @@ public final class InfoCommands {
     private static final int PAGE_SIZE = 15;
     /** EnchantmentLevelBreak registers /cenchant, which ignores the vanilla item/level limits. */
     private static final String CENCHANT_MOD_ID = "enchantmentlevelbreak";
+    /** Prefix of the bundled description keys, see {@link #descriptionFor}. */
+    private static final String DESC_KEY_PREFIX = "entry_traversal.desc.";
+    /**
+     * Modded registry entries that have a bundled description in this mod's language files.
+     * Modded language keys live on the client, so the server cannot check whether an arbitrary
+     * key exists; only entries listed here are safe to describe.
+     */
+    private static final Set<String> MODDED_DESCRIPTIONS = Set.of(
+            "brewinandchewin:intoxication",
+            "brewinandchewin:raging",
+            "brewinandchewin:satisfaction",
+            "brewinandchewin:sweet_heart",
+            "brewinandchewin:tipsy",
+            "farmersdelight:backstabbing",
+            "farmersdelight:comfort",
+            "farmersdelight:nourishment",
+            "farmersrespite:caffeinated",
+            "mynethersdelight:b_pungent",
+            "mynethersdelight:g_pungent",
+            "mynethersdelight:poaching"
+    );
+    /** Description key suffixes used by Farmer's Delight addons, in priority order. */
+    private static final List<String> MOD_DESCRIPTION_SUFFIXES = List.of(".desc", ".description");
+    /** Cached {@code en_us} language keys per mod namespace; an empty set means unavailable. */
+    private static final Map<String, Set<String>> MOD_LANG_KEYS = new ConcurrentHashMap<>();
 
     private InfoCommands() {
     }
@@ -231,8 +262,16 @@ public final class InfoCommands {
         MutableComponent hover = Component.empty()
                 .append(Component.translatable("enchantlist.hover.id", id))
                 .append("\n")
-                .append(Component.translatable("enchantlist.hover.levels", minLevel, maxLevel))
-                .append("\n")
+                .append(Component.translatable("enchantlist.hover.levels", minLevel, maxLevel));
+
+        // Vanilla and supported modded entries get a short explanation of what the enchantment does.
+        Component description = descriptionFor("enchantment", id, enchantment.getDescriptionId());
+        if (description != null) {
+            hover.append("\n").append(Component.translatable("enchantlist.hover.desc", description)
+                    .withStyle(ChatFormatting.GRAY));
+        }
+
+        hover.append("\n")
                 .append(Component.translatable("enchantlist.hover.items", items.size()))
                 .append("\n")
                 .append(itemNames(items, ITEMS_IN_TOOLTIP));
@@ -333,8 +372,16 @@ public final class InfoCommands {
                 .append("\n")
                 .append(Component.translatable("effectlist.hover.levels", minLevel, maxLevel))
                 .append("\n")
-                .append(Component.translatable("effectlist.hover.category", categoryName(category)))
-                .append("\n")
+                .append(Component.translatable("effectlist.hover.category", categoryName(category)));
+
+        // Vanilla and supported modded entries get a short explanation of what the effect does.
+        Component description = descriptionFor("effect", id, effect.getDescriptionId());
+        if (description != null) {
+            hover.append("\n").append(Component.translatable("effectlist.hover.desc", description)
+                    .withStyle(ChatFormatting.GRAY));
+        }
+
+        hover.append("\n")
                 .append(Component.translatable("effectlist.hover.click")
                         .withStyle(ChatFormatting.GRAY, ChatFormatting.ITALIC));
 
@@ -395,6 +442,59 @@ public final class InfoCommands {
                         .withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, command))
                         .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT,
                                 Component.translatable("pagination.hover", command))));
+    }
+
+    /**
+     * Returns the description of a registry entry, or {@code null} when none is available.
+     * Vanilla and {@link #MODDED_DESCRIPTIONS curated modded entries} use the descriptions bundled
+     * in this mod. Other modded entries are resolved from the providing mod's own {@code en_us}
+     * language file, using the {@code .desc} / {@code .description} suffix convention. The server
+     * can read that file from the mod jar, so a missing key never leaks a raw translation key into
+     * the tooltip.
+     */
+    private static Component descriptionFor(String kind, String id, String descriptionId) {
+        if (id.startsWith("minecraft:") || MODDED_DESCRIPTIONS.contains(id)) {
+            return Component.translatable(DESC_KEY_PREFIX + kind + "." + id.replace(':', '.'));
+        }
+        int colon = id.indexOf(':');
+        if (colon < 0) {
+            return null;
+        }
+        return modDescription(id.substring(0, colon), descriptionId);
+    }
+
+    /** Looks for a description key shipped by the mod that owns the entry. */
+    private static Component modDescription(String namespace, String descriptionId) {
+        Set<String> keys = modLangKeys(namespace);
+        for (String suffix : MOD_DESCRIPTION_SUFFIXES) {
+            String key = descriptionId + suffix;
+            if (keys.contains(key)) {
+                return Component.translatable(key);
+            }
+        }
+        return null;
+    }
+
+    /** Loads and caches the {@code en_us} language keys of a mod for description lookups. */
+    private static Set<String> modLangKeys(String namespace) {
+        return MOD_LANG_KEYS.computeIfAbsent(namespace, ns -> {
+            try {
+                var modFileInfo = ModList.get().getModFileById(ns);
+                if (modFileInfo == null) {
+                    return Set.of();
+                }
+                var path = modFileInfo.getFile().findResource("assets", ns, "lang", "en_us.json");
+                if (path == null) {
+                    return Set.of();
+                }
+                try (Reader reader = Files.newBufferedReader(path)) {
+                    JsonObject lang = JsonParser.parseReader(reader).getAsJsonObject();
+                    return Set.copyOf(lang.keySet());
+                }
+            } catch (Exception ignored) {
+                return Set.of();
+            }
+        });
     }
 
     /** Joins the first {@code limit} item display names with commas. */
