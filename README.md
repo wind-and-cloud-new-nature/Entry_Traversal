@@ -131,7 +131,7 @@ gradle build
 构建产物：
 
 ```
-build/libs/entry_traversal-1.0.0.jar
+build/libs/entry_traversal-1.0.1.jar
 ```
 
 将 jar 放入 Forge 1.20.1 客户端的 `mods/` 目录（服务端同样需要）即可。
